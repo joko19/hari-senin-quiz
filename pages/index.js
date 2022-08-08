@@ -1,20 +1,32 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import api from "./api/api"
 
 export default function Home() {
-  console.log("hello world")
+  const [categories, setCategories] = useState([])
+
   useEffect(() => {
-    console.log("useeffect")
     const getCategories = async () => {
       await api.categories()
-      .then((res) => console.log(res.data))
+        .then((res) => {
+          var arr = Object.entries(res.data)
+          setCategories(arr)
+        })
     }
     getCategories()
   }, [])
 
   return (
-    <h1 className="text-3xl font-bold text-center">
-      Hello world!
-    </h1>
+    <div className="p-4">
+      <div className="flex flex-wrap">
+        {categories.map((value, index) => (
+          <div className="grow w-64">
+            <div className="bg-black rounded-lg m-1 drop-shadow-xl cursor-pointer relative grow  hover:font-bold hover:bg-gray-900">
+              <img src={`/images/${value[0]}.png`} className="w-full h-48 object-cover opacity-40 rounded-lg drop-shadow-xl" />
+              <h1 className="text-2xl absolute bottom-2 left-2 text-white"> {value[0]}</h1>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
