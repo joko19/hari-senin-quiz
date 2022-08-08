@@ -1,7 +1,7 @@
 import instance from './instance'
 
 const categories = () => instance.get('/categories')
-const question = (category, limit, difficult) => instance.get(`/questions?categories=${category}&limit=${limit}&difficulty=${difficult}`)
+const question = (category) => instance.get(`/questions?categories=${category}&limit=20`)
 
 const api = {
   categories,
