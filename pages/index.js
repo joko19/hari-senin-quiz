@@ -29,8 +29,8 @@ export default function Home() {
             <Link href={`${value[0].split(" ").join("_").replace("&", "and").toLowerCase()}`} key={index}>
               <a>
                 <div className="grow w-64" >
-                  <div className="bg-black rounded-lg m-1 drop-shadow-xl cursor-pointer relative grow  hover:font-bold hover:bg-gray-900">
-                    <Image src={`/images/${value[0]}.png`} className="w-full h-48 object-cover opacity-40 rounded-lg drop-shadow-xl" alt={value[0]} />
+                  <div className="bg-black rounded-lg m-1 drop-shadow-xl cursor-pointer relative grow h-48  hover:font-bold hover:bg-gray-900">
+                    <Image src={`/images/${value[0]}.png`} layout="fill" className="w-full  object-cover opacity-40 rounded-lg drop-shadow-xl" alt={value[0]} />
                     <h1 className="text-2xl absolute bottom-2 left-2 text-white"> {value[0]}</h1>
                   </div>
                 </div>
