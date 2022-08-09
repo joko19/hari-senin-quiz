@@ -5,7 +5,7 @@ import data from './api/score.json'
 import CountdownTimer from "../components/Timer/countDownTimer";
 import Head from "next/head";
 
-export default function Home({dataQuestions}) {
+export default function Home({ dataQuestions }) {
     const Router = useRouter()
     const { category } = Router.query
     const [activeQuestion, setActiveQuestion] = useState({})
@@ -72,6 +72,19 @@ export default function Home({dataQuestions}) {
         if (e.target.id === "backdrop") setConfirmation(false);
     };
 
+    useEffect(() => {
+        const handleTabClose = event => {
+            event.preventDefault();
+            return (event.returnValue = 'Are you sure you want to exit?');
+        };
+
+        window.addEventListener('beforeunload', handleTabClose);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleTabClose);
+        };
+    }, []);
+
     return (
         <div className="p-4 bg-gray-100 min-h-screen">
             <Head>
@@ -81,20 +94,22 @@ export default function Home({dataQuestions}) {
                 <h1 className="text-2xl md:text-3xl ">{category?.split("_").join(" ")}</h1>
             </section>
             <section >
-                <div className="flex flex-col md:flex-row gap-4 md:mt-12 ">
+                <div className="flex flex-col-reverse md:flex-row gap-4 md:mt-12 ">
                     <div className="md:w-1/3">
                         <div className="flex flex-wrap">
                             {questions.map((value, index) => (
-                                <div className={`${index + 1 === activeNumber ? 'bg-blue-500 text-white' : 'bg-gray-200'} ${value.answer && 'bg-green-500 text-white'} rounded p-2 m-1 w-12 h-12 text-center cursor-pointer grow`} key={index} onClick={() => {
+                                <div className={`${index + 1 === activeNumber ? 'bg-blue-500 text-white' : 'bg-gray-200'} ${value.answer && 'bg-green-500 text-white'} flex text-center rounded p-2 m-1 w-12 h-12 text-center cursor-pointer grow`} key={index} onClick={() => {
                                     chooseQuestion(index + 1)
                                     setActiveNumber(index + 1)
                                 }}>
-                                    {index + 1}
+                                    <p className="my-auto text-center w-full">
+                                        {index + 1}
+                                    </p>
                                 </div>
                             ))}
                         </div>
                         <CountdownTimer deadline={deadline} expired={submit} />
-                        <button className="bg-green-500 text-white font-bold p-2 rounded mt-2 text-center cursor-pointer w-full" onClick={() => setConfirmation(true)} >
+                        <button className="bg-green-500 hover:bg-green-600 text-white font-bold p-2 rounded mt-2 text-center cursor-pointer w-full" onClick={() => setConfirmation(true)} >
                             Submit
                         </button>
                     </div>
@@ -111,8 +126,8 @@ export default function Home({dataQuestions}) {
                             })}
                         </div>
                         <div className="mt-8 flex justify-between">
-                            <button className={`${activeNumber === 1 ? 'bg-gray-400 cursor-default' : 'bg-blue-500'} p-2 rounded text-white`} onClick={() => activeNumber !== 1 && chooseQuestion(activeNumber - 1)}>Previous</button>
-                            <button className={`${activeNumber === questions.length ? 'bg-gray-400 cursor-default' : 'bg-blue-500'} bg-blue-500 p-2 rounded text-white`} onClick={() => activeNumber !== questions.length && chooseQuestion(activeNumber + 1)}>Next</button>
+                            <button className={`${activeNumber === 1 ? 'bg-gray-400 cursor-default' : 'bg-blue-500 hover:bg-blue-600'} p-2 rounded text-white`} onClick={() => activeNumber !== 1 && chooseQuestion(activeNumber - 1)}>Previous</button>
+                            <button className={`${activeNumber === questions.length ? 'bg-gray-400 cursor-default' : 'bg-blue-500 hover:bg-blue-600'} bg-blue-500 p-2 rounded text-white`} onClick={() => activeNumber !== questions.length && chooseQuestion(activeNumber + 1)}>Next</button>
                         </div>
                     </div>
                 </div>
@@ -147,31 +162,29 @@ export default function Home({dataQuestions}) {
                     className="bg-black bg-opacity-50  fixed inset-0 flex items-center justify-center"
                 >
                     <div className="bg-white w-96 p-5 rounded">
-                        <h1 className="font-bold text-2xl text-blue-500">
+                        <h1 className="font-bold text-2xl text-blue-500 text-center">
                             Result
                         </h1>
-                        <div className='overflow-auto'>
-                            <table className="table md:min-w-full overflow-auto divide-y divide-gray-200 text-sm">
-                                <thead className="text-gray-500" >
+                        <table className="table mt-4 min-w-full overflow-auto divide-y divide-gray-200 text-sm">
+                            <thead className="text-gray-500" >
 
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {listScore.map((item, index) => (
-                                        <tr key={index} className="h-12 hover:bg-gray-100">
-                                            <td className="px-4 h-12 whitespace-nowrap text-center">
-                                                {index + 1}
-                                            </td>
-                                            <td className="px-4 h-12 whitespace-nowrap text-center">
-                                                {item.name}
-                                            </td>
-                                            <td className="px-4 h-12 whitespace-nowrap text-center">
-                                                {item.score}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table >
-                        </div>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {listScore.map((item, index) => (
+                                    <tr key={index} className="h-12 hover:bg-gray-100">
+                                        <td className="px-4 h-12 whitespace-nowrap text-center">
+                                            {index + 1}
+                                        </td>
+                                        <td className="px-4 h-12 whitespace-nowrap text-center">
+                                            {item.name}
+                                        </td>
+                                        <td className="px-4 h-12 whitespace-nowrap text-center">
+                                            {item.score}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table >
                         <div className='flex flex-row-reverse gap-4 mt-4'>
                             <Link href="/">
                                 <a className="bg-blue-500 p-2 text-white rounded cursor-pointer hover:bg-blue-600">
@@ -193,5 +206,4 @@ export async function getServerSideProps(context) {
     const res = await fetch(`https://the-trivia-api.com/api//questions?categories=${category}&limit=20`)
     const dataQuestions = await res.json()
     return { props: { dataQuestions } }
-  }
-  
+}
