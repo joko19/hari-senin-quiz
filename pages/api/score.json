@@ -1,0 +1,20 @@
+{
+  "score": [
+    {
+      "name": "Elon Musk",
+      "score": 95
+    },
+    {
+      "name": "Jack Ma",
+      "score": 75
+    },
+    {
+      "name": "Bill Gates",
+      "score": 85
+    },
+    {
+      "name": "Mark Zuckerberg",
+      "score": 90
+    }
+  ]
+}

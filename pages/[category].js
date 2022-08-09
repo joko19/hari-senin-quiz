@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import api from "./api/api"
 import { useRouter } from "next/router";
+import Link from "next/link";
+import data from './api/score.json'
 
 export default function Home() {
     const Router = useRouter()
@@ -9,6 +11,9 @@ export default function Home() {
     const [activeNumber, setActiveNumber] = useState(1)
     const [questions, setQuestions] = useState([])
     const [score, setScore] = useState()
+    const [confirmation, setConfirmation] = useState(false)
+    const [resultModal, setResultModal] = useState(false)
+    const [listScore, setListScore] = useState([])
 
     useEffect(() => {
         const getCategories = async () => {
@@ -49,15 +54,30 @@ export default function Home() {
         setQuestions([...questions])
     }
 
-    const countScore = () => {
+    const submit = () => {
         let totalCorrect = 0
         questions.map((value, index) => {
-            if(value.answer === value.correctAnswer){
+            if (value.answer === value.correctAnswer) {
                 totalCorrect = totalCorrect + 1
             }
         })
-        setScore(totalCorrect*5)
+        setScore(totalCorrect * 5)
+        setConfirmation(false)
+        setResultModal(true)
+        let rank = []
+        console.log(rank)
+        rank.push(...data.score)
+        rank.push({ name: 'User', score: totalCorrect * 5 })
+        rank.sort((a, b) => parseFloat(b.score) - parseFloat(a.score))
+        setListScore(rank)
     }
+
+    const handleOnBackDropClick = (e) => {
+        if (e.target.id === "backdrop") setConfirmation(false);
+    };
+    const handleOnBackDropClickResult = (e) => {
+        if (e.target.id === "backdropResult") setResultModal(false);
+    };
 
     return (
         <div className="p-4 bg-gray-100 min-h-screen">
@@ -77,17 +97,18 @@ export default function Home() {
                                 </div>
                             ))}
                         </div>
-                        <button className="bg-green-500 text-white font-bold p-2 rounded mt-2 text-center cursor-pointer w-full" onClick={countScore} >
+                        <button className="bg-green-500 text-white font-bold p-2 rounded mt-2 text-center cursor-pointer w-full" onClick={() => setConfirmation(true)} >
                             Submit
                         </button>
                     </div>
                     <div className="bg-white w-full p-4 ">
                         {activeNumber}.   {activeQuestion.question}
-                        <div className="pl-6 mt-2">
+                        <div className="pl-4 mt-2">
                             {activeQuestion?.options?.map((value, index) => {
+                                const abcd = ['A', 'B', 'C', 'D']
                                 return (
                                     <button className={`${activeQuestion.answer === value ? 'bg-blue-400 text-white' : 'bg-gray-100 hover:bg-gray-300'} text-left p-2 w-full m-1 rounded  cursor-pointer`} key={index} onClick={() => chooseAnswer(value)}>
-                                        {value}
+                                        {abcd[index]}.   {value}
                                     </button>
                                 )
                             })}
@@ -99,6 +120,73 @@ export default function Home() {
                     </div>
                 </div>
             </section >
+
+            {confirmation && (
+                <div
+                    id="backdrop"
+                    onClick={handleOnBackDropClick}
+                    className="bg-black bg-opacity-50  fixed inset-0 flex items-center justify-center"
+                >
+                    <div className="bg-white w-96 p-5 rounded">
+                        <h1 className="font-bold text-2xl text-blue-500">
+                            Confirmation
+                        </h1>
+                        <p className="my-4 text-gray-700">Are you sure to Submit your Quiz?</p>
+                        <div className='flex flex-row-reverse gap-4 mt-4'>
+                            <button className='bg-blue-500 p-2 text-white rounded cursor-pointer hover:bg-blue-600' onClick={submit}>
+                                Submit
+                            </button>
+                            <div className='p-2 rounded cursor-pointer text-gray-700 bg-gray-200 hover:bg-gray-300' onClick={() => setConfirmation(false)}>
+                                Cancel
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
+            {resultModal && (
+                <div
+                    id="backdropResult"
+                    className="bg-black bg-opacity-50  fixed inset-0 flex items-center justify-center"
+                >
+                    <div className="bg-white w-96 p-5 rounded">
+                        <h1 className="font-bold text-2xl text-blue-500">
+                            Result
+                        </h1>
+                        <div className='overflow-auto'>
+                            <table className="table md:min-w-full overflow-auto divide-y divide-gray-200 text-sm">
+                                <thead className="text-gray-500" >
+
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {listScore.map((item, index) => (
+                                        <tr key={index} className="h-12 hover:bg-gray-100">
+                                            <td className="px-4 h-12 whitespace-nowrap text-center">
+                                                {index + 1}
+                                            </td>
+                                            <td className="px-4 h-12 whitespace-nowrap text-center">
+                                                {item.name}
+                                            </td>
+                                            <td className="px-4 h-12 whitespace-nowrap text-center">
+                                                {item.score}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table >
+                        </div>
+                        <div className='flex flex-row-reverse gap-4 mt-4'>
+                            <Link href="/">
+                                <a className="bg-blue-500 p-2 text-white rounded cursor-pointer hover:bg-blue-600">
+                                    Back to Home
+                                </a>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div >
     )
 }
