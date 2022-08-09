@@ -16,7 +16,7 @@ export default function Home() {
     const [resultModal, setResultModal] = useState(false)
     const [listScore, setListScore] = useState([])
 
-    const five_minutes =  6 * 1000;
+    const five_minutes =  5 * 60 * 1000;
     const now = new Date().getTime();
   
     const deadline = now + five_minutes;
