@@ -3,6 +3,7 @@ import api from "./api/api"
 import { useRouter } from "next/router";
 import Link from "next/link";
 import data from './api/score.json'
+import CountdownTimer from "../components/Timer/countDownTimer";
 
 export default function Home() {
     const Router = useRouter()
@@ -15,6 +16,10 @@ export default function Home() {
     const [resultModal, setResultModal] = useState(false)
     const [listScore, setListScore] = useState([])
 
+    const five_minutes =  6 * 1000;
+    const now = new Date().getTime();
+  
+    const deadline = now + five_minutes;
     useEffect(() => {
         const getCategories = async () => {
             await api.question(category)
@@ -97,6 +102,7 @@ export default function Home() {
                                 </div>
                             ))}
                         </div>
+                        <CountdownTimer deadline={deadline} expired={submit} />
                         <button className="bg-green-500 text-white font-bold p-2 rounded mt-2 text-center cursor-pointer w-full" onClick={() => setConfirmation(true)} >
                             Submit
                         </button>
