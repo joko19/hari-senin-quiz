@@ -1,39 +1,32 @@
 import { useEffect, useState } from "react"
-import api from "./api/api"
 import { useRouter } from "next/router";
 import Link from "next/link";
 import data from './api/score.json'
 import CountdownTimer from "../components/Timer/countDownTimer";
+import Head from "next/head";
 
-export default function Home() {
+export default function Home({dataQuestions}) {
     const Router = useRouter()
     const { category } = Router.query
     const [activeQuestion, setActiveQuestion] = useState({})
     const [activeNumber, setActiveNumber] = useState(1)
     const [questions, setQuestions] = useState([])
-    const [score, setScore] = useState()
     const [confirmation, setConfirmation] = useState(false)
     const [resultModal, setResultModal] = useState(false)
     const [listScore, setListScore] = useState([])
 
-    const five_minutes =  5 * 60 * 1000;
+    const five_minutes = 5 * 60 * 1000;
     const now = new Date().getTime();
-  
     const deadline = now + five_minutes;
+
     useEffect(() => {
-        const getCategories = async () => {
-            await api.question(category)
-                .then((res) => {
-                    setQuestions(res.data)
-                    let options = res.data[0].incorrectAnswers
-                    options.push(res.data[0].correctAnswer)
-                    let dataQuestion = res.data[0]
-                    dataQuestion.options = [...new Set(options)]
-                    setActiveQuestion(dataQuestion)
-                    setActiveNumber(1)
-                })
-        }
-        getCategories()
+        setQuestions(dataQuestions)
+        let options = dataQuestions[0].incorrectAnswers
+        options.push(dataQuestions[0].correctAnswer)
+        let dataQuestion = dataQuestions[0]
+        dataQuestion.options = [...new Set(options)]
+        setActiveQuestion(dataQuestion)
+        setActiveNumber(1)
     }, [])
 
     const chooseQuestion = (number) => {
@@ -66,11 +59,9 @@ export default function Home() {
                 totalCorrect = totalCorrect + 1
             }
         })
-        setScore(totalCorrect * 5)
         setConfirmation(false)
         setResultModal(true)
         let rank = []
-        console.log(rank)
         rank.push(...data.score)
         rank.push({ name: 'User', score: totalCorrect * 5 })
         rank.sort((a, b) => parseFloat(b.score) - parseFloat(a.score))
@@ -80,17 +71,17 @@ export default function Home() {
     const handleOnBackDropClick = (e) => {
         if (e.target.id === "backdrop") setConfirmation(false);
     };
-    const handleOnBackDropClickResult = (e) => {
-        if (e.target.id === "backdropResult") setResultModal(false);
-    };
 
     return (
         <div className="p-4 bg-gray-100 min-h-screen">
+            <Head>
+                <title>{category?.split("_").join(" ")}</title>
+            </Head>
             <section>
                 <h1 className="text-2xl md:text-3xl ">{category?.split("_").join(" ")}</h1>
             </section>
             <section >
-                <div className="flex flex-col md:flex-row gap-4 mt-12 ">
+                <div className="flex flex-col md:flex-row gap-4 md:mt-12 ">
                     <div className="md:w-1/3">
                         <div className="flex flex-wrap">
                             {questions.map((value, index) => (
@@ -107,7 +98,7 @@ export default function Home() {
                             Submit
                         </button>
                     </div>
-                    <div className="bg-white w-full p-4 ">
+                    <div className="bg-white w-full p-4">
                         {activeNumber}.   {activeQuestion.question}
                         <div className="pl-4 mt-2">
                             {activeQuestion?.options?.map((value, index) => {
@@ -149,7 +140,6 @@ export default function Home() {
                     </div>
                 </div>
             )}
-
 
             {resultModal && (
                 <div
@@ -196,3 +186,12 @@ export default function Home() {
         </div >
     )
 }
+
+// This gets called on every request
+export async function getServerSideProps(context) {
+    const category = context.params.category
+    const res = await fetch(`https://the-trivia-api.com/api//questions?categories=${category}&limit=20`)
+    const dataQuestions = await res.json()
+    return { props: { dataQuestions } }
+  }
+  
